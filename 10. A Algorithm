@@ -1,0 +1,56 @@
+import heapq
+
+def a_star_algorithm(start, goal, graph, heuristic):
+    open_list = []
+    heapq.heappush(open_list, (0 + heuristic[start], start))  # (f_cost, node)
+
+    came_from = {}
+    g_costs = {node: float('inf') for node in graph}
+    g_costs[start] = 0
+
+    while open_list:
+        _, current = heapq.heappop(open_list)
+
+        if current == goal:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            path.reverse()
+            return path, g_costs[goal]
+
+        for neighbor, cost in graph[current].items():
+            tentative_g_cost = g_costs[current] + cost
+
+            if tentative_g_cost < g_costs[neighbor]:
+                came_from[neighbor] = current
+                g_costs[neighbor] = tentative_g_cost
+                f_cost = tentative_g_cost + heuristic[neighbor]
+                heapq.heappush(open_list, (f_cost, neighbor))
+
+    return None, float('inf')
+
+# Example graph as an adjacency list
+graph = {
+    'A': {'B': 1, 'C': 4},
+    'B': {'A': 1, 'C': 2, 'D': 5},
+    'C': {'A': 4, 'B': 2, 'D': 1},
+    'D': {'B': 5, 'C': 1}
+}
+
+# Example heuristic values (estimated cost from each node to goal 'D')
+heuristic = {
+    'A': 7,
+    'B': 6,
+    'C': 2,
+    'D': 0
+}
+
+start_node = 'A'
+goal_node = 'D'
+
+path, cost = a_star_algorithm(start_node, goal_node, graph, heuristic)
+
+print("Path:", path)
+print("Cost:", cost)
